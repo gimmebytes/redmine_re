@@ -83,10 +83,11 @@
       <thead>
         <tr>
           <th title="<%= t(:re_conf_internal_name) %>"><%= t(:re_conf_internal_name) %></th>
-          <th title="<%= t(:re_conf_artifact_in_use) %>"><%= t(:re_directed) %></th>
+          <th title="<%= t(:re_conf_artifact_directed) %>"><%= t(:re_directed) %></th>
           <th title="<%= t(:re_conf_artifact_in_use) %>"><%= t(:re_use) %></th>
           <th title="<%= t(:re_conf_alias_name) %>"><%= t(:re_alias_name) %></th>
           <th title="<%= t(:re_conf_color) %>"><%= t(:re_color) %></th>
+          <th title="<%= t(:re_delete) %>"><%= t(:re_delete) %></th>
         </tr>
       </thead>
       <tbody>
@@ -96,11 +97,12 @@
               <%= hidden_field_tag "re_relation_configs[" + r.relation_type.underscore + '[id]]', r.id %>
               <label><%= r.relation_type.humanize %></label>
             </td>
-            <td><%= check_box_tag "re_relation_configs[" + r.relation_type.underscore + '[in_use]]', 'yes', r.in_use, { :disabled => (r.is_system_relation==1) } %></td>
-            <td><%= check_box_tag "re_relation_configs[" + r.relation_type.underscore + '[is_directed]]', 'yes', r.is_directed, { :disabled => (r.is_system_relation==1) } %></td>
+            <td><%= check_box_tag "re_relation_configs[" + r.relation_type.underscore + '[is_directed]]', 'yes', (r.is_directed==1), { :disabled => (r.is_system_relation==1) } %></td>
+            <td><%= check_box_tag "re_relation_configs[" + r.relation_type.underscore + '[in_use]]', 'yes', (r.in_use==1), { :disabled => (r.is_system_relation==1) } %></td>
             <td><%= text_field_tag "re_relation_configs[" + r.relation_type.underscore + '[alias_name]]', r.alias_name, :size => 20 %></td>
             <td><%= text_field_tag "re_relation_configs[" + r.relation_type.underscore + '[color]]', r.color, :size => 6,  :class => "colorpick", :style => "background-color:#" + r.color + ";color:#" + r.color, :onload => "getccolor(this)"  %>
             </td>
+            <td><%= check_box_tag "re_relation_configs[" + r.relation_type.underscore + '[destroy]]', '1', false, { :disabled => (r.is_system_relation==1) } %></td>
           </tr>
         <% end %>
       </tbody>
@@ -112,8 +114,6 @@
 
     <%= submit_tag l(:re_save), :accesskey => "s" %>
     &nbsp;<%= link_to(t(:re_cancel), { :project_id => @project.id }, { :class => "icon icon-reload" }) %>
-
-<% end %>
 
 <script type="text/javascript">
 //<![CDATA[
@@ -129,11 +129,11 @@ jQuery(document).ready(function() {
   $('.colorpick').colorPicker();
   
   $('#add-relation').click(function() {
-    var relation = "<%= escape_javascript(render(:partial => "add_relation")) %>";
+    var relation = "<%= get_escaped_relationtype_html(f) %>";
     var now = new Date();
     var utc_timestamp = Date.UTC(now.getFullYear(),now.getMonth(), now.getDate() ,
       now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
-    relation = relation.replace(/newly-added-relation/g, utc_timestamp.toString());
+    relation = relation.replace(/new_re_relationtype/g, utc_timestamp.toString());
     $('#relation_types_list > tbody:last').append(relation);
     /* prepending this to following line does not seem to work: "#relation_types_list > " */
     $('.colorpick:last').colorPicker();
@@ -146,6 +146,10 @@ jQuery(document).ready(function() {
     });
   });
 
+    $(".relationdel").click(function () {
+    	alert("t");
+      $(this).parent().parent().remove();
+    });
 });
 
 function tableArtifactIdsToJson(table, row, field_id) {
@@ -157,7 +161,16 @@ function tableArtifactIdsToJson(table, row, field_id) {
   jQuery(field_id).val("[" + types + "]");
 };
 
+function removeRelationFields (field) {
+	var answer = confirm("Are you sure?");
+  	if (answer) {
+       	jQuery(field).parent().parent().remove();
+     }
+}
+
 //]]
 </script>
+
+<% end %>
 
 </div>

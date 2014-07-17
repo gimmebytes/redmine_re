@@ -50,6 +50,7 @@ class RedmineReController < ApplicationController
     session[:expanded_nodes] ||= Set.new
     @re_artifact_order = ReSetting.get_serialized("artifact_order", @project.id)
     @re_relation_types = ReRelationtype.relation_types(@project.id, false)
+    @re_used_relation_types = ReRelationtype.relation_types(@project.id, false, true)
     @re_artifact_settings = ReSetting.active_re_artifact_settings(@project.id)
     @re_relation_settings = ReSetting.active_re_relation_settings(@project.id)
   end

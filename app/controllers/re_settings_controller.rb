@@ -144,20 +144,46 @@ private
       ReSetting.set_serialized(k, @project.id, v)
     end
 
+    # Get existing
     new_relation_configs = params[:re_relation_configs]
+    
+    # Add new relations
+    unless params[:config].nil?
+      
+      params[:config][:re_relationtypes].each do |new_relation|
+        new_relation_configs = new_relation_configs.merge(new_relation)
+      end
+    end
+    
     new_relation_configs.each_pair do |k, v|
-      r = ReRelationtype.find_or_create_by_id(v['id'])
+      if v['id'].blank?
+        r = ReRelationtype.new
+        r.relation_type = v[:alias_name] # on i the type was created the alias name will be set
+      else
+        r = ReRelationtype.find_or_create_by_id(v['id'])
+      end
+      
       logger.debug "before: #{r.inspect}"
-      unless r.is_system_relation
+      if r.is_system_relation == 0
         r.in_use = v.has_key? 'in_use'
         r.is_directed = v.has_key? 'is_directed'
+        r.is_system_relation = 0
       end
       r.alias_name = v[:alias_name]
       r.color = v[:color]
       r.project_id = @project.id
       
       logger.debug "after: #{r.inspect}"
-      #r.save
+
+      if r.is_system_relation == "1"
+        r.save
+      else
+        if v[:destroy] == "1"
+          ReRelationtype.destroy(r.id)
+        else
+          r.save
+        end
+      end
     end
 
     @re_artifact_order = ReSetting.get_serialized("artifact_order", @project.id)

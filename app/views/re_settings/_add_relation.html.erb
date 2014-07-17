@@ -1,11 +1,12 @@
-<tr id="newly-added-relation">
+<tr class="newly-added-relation">
   <td class="dnd">
-    <%= hidden_field_tag "re_relation_configs[new[id]]", "nil" %>
+    <%= f.hidden_field :id %>
     <label>undefined</label>
   </td>
-  <td><%= check_box_tag "re_relation_configs[new[in_use]]", 'yes', true %></td>
-  <td><%= check_box_tag "re_relation_configs[new[is_directed]]", 'yes', true %></td>
-  <td><%= text_field_tag "re_relation_configs[new[alias_name]]", "", :size => 20 %></td>
-  <td><%= text_field_tag "re_relation_configs[new[color]]", "000000", {:size => 6,  :class => "colorpick", :style => "background-color:#000000;color:#000000", :onload => "getccolor(this)"}  %>
+  <td><%= f.check_box :in_use %></td>
+  <td><%= f.check_box :is_directed %></td>
+  <td><%= f.text_field :alias_name, { :size => 20 } %></td>
+  <td><%= f.text_field :color, {:size => 6,  :class => "colorpick", :style => "background-color:#000000;color:#000000", :onload => "getccolor(this)"}  %>
   </td>
+  <td><a class="icon icon-del relationdel" onclick="removeRelationFields(this); return false;" href=""> </a></td>
 </tr>
