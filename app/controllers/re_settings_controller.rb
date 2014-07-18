@@ -155,6 +155,7 @@ private
     end
     
     new_relation_configs.each_pair do |k, v|
+      logger.debug v.to_yaml
       if v['id'].blank?
         r = ReRelationtype.new
         r.relation_type = v[:alias_name] # on i the type was created the alias name will be set
@@ -165,9 +166,8 @@ private
       
       logger.debug "before: #{r.inspect}"
       if r.is_system_relation == 0
-        r.in_use = v.has_key? 'in_use'
-        r.is_directed = v.has_key? 'is_directed'
-        r.is_system_relation = 0
+        r.in_use = (v[:in_use] == "1" || v[:in_use] == "yes")
+        r.is_directed = (v[:is_directed] == "1" || v[:is_directed] == "yes")
       end
       r.alias_name = v[:alias_name]
       r.color = v[:color]
