@@ -149,9 +149,8 @@ private
     
     # Add new relations
     unless params[:config].nil?
-      
-      params[:config][:re_relationtypes].each do |new_relation|
-        new_relation_configs = new_relation_configs.merge(new_relation)
+      params[:config][:re_relationtypes].each_pair do |k, new_relation|
+        new_relation_configs = new_relation_configs.merge({ k => new_relation })
       end
     end
     
@@ -159,6 +158,7 @@ private
       if v['id'].blank?
         r = ReRelationtype.new
         r.relation_type = v[:alias_name] # on i the type was created the alias name will be set
+        r.is_system_relation = 0
       else
         r = ReRelationtype.find_or_create_by_id(v['id'])
       end
@@ -179,6 +179,15 @@ private
         r.save
       else
         if v[:destroy] == "1"
+          
+          n = ReArtifactRelationship.find_all_by_relation_type(r.relation_type)
+          n.each do |relation|
+            artifact = ReArtifactProperties.find(relation.source_id)
+            if (artifact.project_id == r.project_id)
+              ReArtifactRelationship.destroy(relation.id)
+            end
+          end
+
           ReRelationtype.destroy(r.id)
         else
           r.save
