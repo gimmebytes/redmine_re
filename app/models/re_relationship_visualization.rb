@@ -1,3 +1,4 @@
+# Deprecated, can be deleted if visualisation was fixt. Logic mooved to ReVisualizationConfig
 class ReRelationshipVisualization < ActiveRecord::Base
  
   def filter_table_add_row(projekt_id, visualization_type)
@@ -432,6 +433,14 @@ class ReRelationshipVisualization < ActiveRecord::Base
     
     @choosen_relation = []
    
+    ReRelationtype.relation_types(project_id).each do |relation|
+      unless relation == "parentchild"
+        if @saved_filter[relation] == 1
+          @choosen_relation << relation
+        end
+      end
+    end
+     
     if @saved_filter.dependency == 1 
       @choosen_relation << "dependency"
     end

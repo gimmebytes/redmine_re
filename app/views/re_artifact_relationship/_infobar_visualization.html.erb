@@ -17,8 +17,7 @@
             <span style="padding-left: 20px; alpha=0.2; background-color:<%= colors %>; color:<%= colors %>;">&nbsp;</span>
           </td>
           <td>
-			  <% @artifact_filter = ReRelationshipVisualization.new %> 
-			  <% @filter = @artifact_filter.set_filter_for_visualization(@project.id,session[:visualization_type],artifact_type.to_s)%>
+			  <% @filter = ReVisualizationConfig.is_filter_set_for_visualization(@project.id,session[:visualization_type],artifact_type.to_s)%>
 			  <%= check_box_tag 'artifact_filter[]', artifact_type.to_s, @filter, :id => "artifact_filter_"+artifact_type.to_s, :onclick=>  "clear_canvas(); $('#visualization').submit();" %>
 		  </td>
         </tr>
@@ -34,9 +33,8 @@
 		  	<span style="padding-left: 20px; alpha=0.2; background-color:<%= colors %>; color:<%= colors %>;">&nbsp;</span>
 		  </td>
           <td>
-			  <% @artifact_filter = ReRelationshipVisualization.new %> 
 			  <% artifact_type = "issue"%>
-			  <% @filter = @artifact_filter.set_filter_for_visualization(@project.id,session[:visualization_type],artifact_type)%>
+			  <% @filter = ReVisualizationConfig.is_filter_set_for_visualization(@project.id,session[:visualization_type],artifact_type)%>
 
 			  <%= check_box_tag 'artifact_filter[]', artifact_type.to_s, @filter, :id => "artifact_filter_"+artifact_type.to_s, :onclick=>  "clear_canvas(); $('#visualization').submit();" %>
 	      </td>
@@ -63,8 +61,7 @@
           <span style="padding-left: 20px; background-color:<%= colors %>; color:<%= colors %>;">&nbsp;</span>
         </td>
         <td>
-			<% @artifact_filter = ReRelationshipVisualization.new %>
-			<% @filter = @artifact_filter.set_filter_for_visualization(@project.id,session[:visualization_type],relation_type)%>
+			<% @filter = ReVisualizationConfig.is_filter_set_for_visualization(@project.id,session[:visualization_type],relation_type)%>
 		
 		<% if(session[:visualization_type]!= "sunburst")%>	
           <%= check_box_tag 'relation_filter[]', relation_type.to_s,  @filter, :id => "relation_filter_"+relation_type.to_s, :onclick=>  "clear_canvas(); $('#visualization').submit();" %>
@@ -74,7 +71,7 @@
         </td>
       </tr>
       <% end %>
-      <% ReRelationtype::gather_all_system_relation_types(@project.id).each do |relation_type| %>
+      <% ReRelationtype::relation_types(@project.id, true).each do |relation_type| %>
       <tr>
         <% settings = ReSetting.get_serialized(relation_type, @project.id) %>
         
@@ -90,8 +87,7 @@
           <span style="padding-left: 20px; background-color:<%= colors %>; color:<%= colors %>;">&nbsp;</span>
         </td>
         <td>
-			<% @artifact_filter = ReRelationshipVisualization.new %>
-			<% @filter = @artifact_filter.set_filter_for_visualization(@project.id,session[:visualization_type],relation_type)%>
+			<% @filter = ReVisualizationConfig.is_filter_set_for_visualization(@project.id,session[:visualization_type],relation_type)%>
 			<% if(session[:visualization_type]!= "sunburst")%>	
 			<%= check_box_tag 'relation_filter[]', relation_type.to_s,  @filter, :id => "relation_filter_"+relation_type.to_s, :onclick=>  "clear_canvas(); $('#visualization').submit();" %>
   		  <% else %>
@@ -107,7 +103,7 @@
 	  </tr>
 	  <tr>
 		  <td colspan="3">
-			  <%= number_field_tag 'deep', @artifact_filter.get_max_deep(@project.id,session[:visualization_type])%>
+			  <%= number_field_tag 'deep', ReVisualizationConfig.get_max_deep(@project.id, session[:visualization_type])%>
 		  </td>
 	  </tr>
 	  <tr>

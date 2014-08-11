@@ -61,6 +61,7 @@ en:
   re_last_update: 'last update'
   re_by: 'by'
   re_at: 'at'
+  re_directed: 'directed'
 
   # Configuration
   re_administrate: 'Administration'

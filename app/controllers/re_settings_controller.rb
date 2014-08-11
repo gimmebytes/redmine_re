@@ -201,7 +201,7 @@ private
     
     flash[:notice] = t(:re_configs_saved)
     
-    redirect_to :controller => "requirements", :action => "index", :project_id => @project.id  
+    #redirect_to :controller => "requirements", :action => "index", :project_id => @project.id  
 
   end
   

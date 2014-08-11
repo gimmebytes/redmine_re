@@ -42,5 +42,16 @@ class ReRelationtype < ActiveRecord::Base
     end
     ret
   end
+    
+  def self.get_alias_name (relation_type, project_id)
+
+    ret = ""
+    tmp = ReRelationtype.find_by_project_id_and_relation_type(project_id, relation_type)
+
+    unless tmp.blank?
+      ret = tmp.alias_name
+    end
+    ret
+  end
 
 end

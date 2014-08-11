@@ -3,6 +3,7 @@ class CreateReVisualizationConfigs < ActiveRecord::Migration
     
     create_table :re_visualization_configs do |t|
       t.integer :project_id
+      t.integer :user_id
       t.string :visualization_type
       t.string :configuration_type
       t.string :configuration_name
