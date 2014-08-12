@@ -750,11 +750,16 @@ class ReArtifactRelationshipController < RedmineReController
   end
   
   def find_all_artifacts_for_netmap(artifact)
-    if (@max_deep== 0)
+    
+    logger.debug @min_dis_artifact_arr.to_yaml
+    logger.debug @max_deep.to_yaml
+    logger.debug "###################"
+    
+    #if (@max_deep== 0)
       @current_deep = 1
-    else
-      @current_deep = @min_dis_artifact_arr[artifact.id]
-    end
+    #else
+    #  @current_deep = @min_dis_artifact_arr[artifact.id]
+    #end
     if (@max_deep.to_i == 0 || @current_deep.to_i <= @max_deep.to_i)
       
       re_artifact_properties = ReArtifactProperties.find_by_id(artifact.id)
@@ -876,7 +881,7 @@ class ReArtifactRelationshipController < RedmineReController
     #Add Connection to Issues
       if @chosen_issue
         Realization.where("re_artifact_properties_id == ?", artifact.id.to_s).each do |source|
-          if(@visualization_typ="netmap")
+          if(@visualization_typ=="netmap")
             if(@issues.include? source.issue_id )
               doit=true
             else
@@ -1037,7 +1042,6 @@ class ReArtifactRelationshipController < RedmineReController
     @visualization_type  = session[:visualization_type]
     ReVisualizationConfig.save_visualization_config(@project.id, params[:artifact_filter], params[:relation_filter], session[:visualization_type])
 
-
     if(params[:deep].present?)
       deep=params[:deep].to_i.to_s
       
@@ -1050,44 +1054,20 @@ class ReArtifactRelationshipController < RedmineReController
       end
       ReVisualizationConfig.save_max_deep(@project.id, deep, session[:visualization_type])
     end
-   
-   if(params[:data].present?)
-     #tooltip-graph
-     @re_artifact_order = ReSetting.get_serialized("artifact_order", @project.id)
-     #@re_relation_order = ReSetting.get_serialized("relation_order", @project.id)
-     ReRelationtypes.find_all_by_project_id(@project.id).each do |r|
-     relation_type = r.relation_type      
-        relation_settings = ReSetting.get_serialized(artifact_type, @project.id)
-        if(relation_settings['show_in_visualization'] == true || relation_settings['show_in_visualization'] == "yes" )
-          lokal_artifact=artifact_type.gsub(/^re_/, '').humanize
-          @chosen_artifacts << "Re"+lokal_artifact.to_s
-        end
-      end
-      ReRelationtypes.find_all_by_project_id(@project.id).each_with_index do |r, i|
-        relation_type = r.relation_type      
-        relation_settings = ReSetting.get_serialized(relation_type, @project.id)
-        if(relation_settings['show_in_visualization'] == true || relation_settings['show_in_visualization'] == "yes" )
-          @chosen_relations << relation_type.to_s
-        end
-       end
-       issue = ReSetting.get_plain("issues", @project.id)
-       if (issue == "yes" || issue == true)
-         @chosen_issue = true
-       else
-         @chosen_issue = false
-       end
-       @max_deep = ReSetting.get_serialized("visualization_deep", @project.id).to_i
-   else
-       @chosen_artifacts = ReVisualizationConfig.get_artifact_filter_as_stringarray(@project.id, session[:visualization_type])
-       @chosen_relations = ReVisualizationConfig.get_relation_filter_as_stringarray(@project.id, session[:visualization_type])
-       @chosen_issue = ReVisualizationConfig.get_issue_filter(@project.id, session[:visualization_type])
-       @max_deep = ReVisualizationConfig.get_max_deep(@project.id, session[:visualization_type]).to_i
-   end
-   if(@visualization_type!= "graph_issue" )
-     @artifacts = ReArtifactProperties.find_all_by_project_id_and_artifact_type(@project.id, @chosen_artifacts, :order => "artifact_type, name")
-   else
-     @artifacts = ""
-   end
+
+    #tooltip-graph
+    @re_artifact_order = ReSetting.get_serialized("artifact_order", @project.id)
+
+    @chosen_artifacts = ReVisualizationConfig.get_artifact_filter_as_stringarray(@project.id, session[:visualization_type])
+    @chosen_relations = ReVisualizationConfig.get_relation_filter_as_stringarray(@project.id, session[:visualization_type])
+    @chosen_issue = ReVisualizationConfig.get_issue_filter(@project.id, session[:visualization_type])
+    @max_deep = ReVisualizationConfig.get_max_deep(@project.id, session[:visualization_type]).to_i
+
+    if(@visualization_type!= "graph_issue" )
+      @artifacts = ReArtifactProperties.find_all_by_project_id_and_artifact_type(@project.id, @chosen_artifacts, :order => "artifact_type, name")
+    else
+      @artifacts = ""
+    end
     @json_netmap = build_json_for_visualization(@artifacts, @chosen_relations)
 
     render :json => @json_netmap
